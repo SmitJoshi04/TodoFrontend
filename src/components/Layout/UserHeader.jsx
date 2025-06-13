@@ -9,7 +9,7 @@ const UserHeader = () => {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const { mutate: logout, isLoading } = useMutation({
+  const { mutate: logout, isPending } = useMutation({
     mutationFn: logoutApi,
     onSuccess: () => {
       clearTokens();
@@ -55,7 +55,7 @@ const UserHeader = () => {
         className="flex items-center text-gray-900 px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-200 transition w-full text-left gap-2"
       >
         <LogOut size={18} />
-        {isLoading ? "Logging out..." : "Logout"}
+        {isPending ? "Logging out..." : "Logout"}
       </button>
     </>
   );
