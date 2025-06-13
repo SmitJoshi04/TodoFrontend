@@ -51,7 +51,7 @@ const UserHeader = () => {
       </Link>
       <button
         onClick={handleLogout}
-        disabled={isLoading}
+        disabled={isPending}
         className="flex items-center text-gray-900 px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-200 transition w-full text-left gap-2"
       >
         <LogOut size={18} />
