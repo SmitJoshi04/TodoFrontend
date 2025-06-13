@@ -6,20 +6,26 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { registerUser } from "../services/auth";
 import toast from "react-hot-toast";
+import { Eye, EyeOff } from "lucide-react";
 
 const registerSchema = z.object({
   email: z.string().email("Invalid email address"),
   fullName: z.string().min(2, "Full name must be at least 2 characters"),
   password: z.string().min(6, "Password must be at least 6 characters"),
-  image: z.instanceof(FileList).optional(),
+  image: z
+    .instanceof(FileList)
+    .refine((files) => files.length > 0, { message: "Image is required" }),
 });
 
 export default function Register() {
   const navigate = useNavigate();
   const [previewImage, setPreviewImage] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
+
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(registerSchema),
@@ -27,7 +33,7 @@ export default function Register() {
 
   const registerMutation = useMutation({
     mutationFn: registerUser,
-    onSuccess: (data) => {
+    onSuccess: () => {
       toast.success("Registered successfully! Please log in.");
       navigate("/login");
     },
@@ -38,11 +44,17 @@ export default function Register() {
   });
 
   const onSubmit = (data) => {
-    registerMutation.mutate(data);
+    const formData = new FormData();
+    formData.append("email", data.email);
+    formData.append("fullName", data.fullName);
+    formData.append("password", data.password);
+    formData.append("image", data.image[0]);
+
+    registerMutation.mutate(formData);
   };
 
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -62,6 +74,7 @@ export default function Register() {
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <div className="space-y-4">
+            {/* Email */}
             <div>
               <label
                 htmlFor="email"
@@ -105,11 +118,21 @@ export default function Register() {
               >
                 Password
               </label>
-              <input
-                {...register("password")}
-                type="password"
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-              />
+              <div className="relative mt-1">
+                <input
+                  {...register("password")}
+                  type={showPassword ? "text" : "password"}
+                  className="block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500"
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
               {errors.password && (
                 <p className="mt-1 text-sm text-red-600">
                   {errors.password.message}
