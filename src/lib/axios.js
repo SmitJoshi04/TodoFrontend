@@ -37,8 +37,6 @@ axiosInstance.interceptors.response.use(
     ) {
       originalRequest._retry = true;
 
-      console.log("test1");
-
       try {
         const response = await axios.post(`${API_URL}/user/refresh-token`, {
           refreshToken: getRefreshToken(),
